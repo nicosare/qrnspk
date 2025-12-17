@@ -440,8 +440,34 @@
         e.target.removeEventListener('click', handleEditableClick);
     }
 
-    // Инициализация при загрузке
-    generateQR();
+    // Инициализация при загрузке - запуск таймера с текущим временем
+    function initializeTimer() {
+        const now = new Date();
+        startTime = now;
+        
+        // Устанавливаем текущую дату и время
+        const currentDateTime = getCurrentDateTimeString(now);
+        dateElement.textContent = currentDateTime;
+        
+        // Генерируем номер билета на основе текущего времени
+        ticketNumber = generateTicketNumber(now);
+        ticketNumberElement.textContent = ticketNumber;
+        
+        // Обновляем таймер
+        updateTimer();
+        
+        // Запускаем интервал для обновления таймера каждую секунду
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        // Генерируем QR-код
+        generateQR();
+    }
+
+    // Вызываем инициализацию при загрузке
+    initializeTimer();
 
     // Назначаем обработчики для редактируемых полей
     routeNumberElement.addEventListener('click', handleEditableClick);
@@ -456,25 +482,28 @@
         });
     });
 
-    // Обработчик клика по таймеру
+    // Обработчик клика по таймеру - сброс и генерация новых данных
     timerElement.addEventListener('click', () => {
         const now = new Date();
-        const newDate = getCurrentDateTimeString(now);
-        dateElement.textContent = newDate;
+        startTime = now;
+        
+        const currentDateTime = getCurrentDateTimeString(now);
+        dateElement.textContent = currentDateTime;
         
         // Генерируем новый номер билета
-        const newTicketNumber = generateTicketNumber(now);
-        ticketNumber = newTicketNumber;
-        ticketNumberElement.textContent = newTicketNumber;
+        ticketNumber = generateTicketNumber(now);
+        ticketNumberElement.textContent = ticketNumber;
         
-        generateQR();
-
+        // Сбрасываем таймер
+        updateTimer();
+        
+        // Перезапускаем интервал
         if (timerInterval) {
             clearInterval(timerInterval);
         }
-        startTime = new Date();
-        updateTimer();
         timerInterval = setInterval(updateTimer, 1000);
+        
+        generateQR();
     });
 </script>
 </body> </html>
