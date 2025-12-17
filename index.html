@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уведомление об оплате</title>
+    <!-- Подключаем библиотеку для QR -->
+    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script>
+    <style>
+       @font-face {
+            font-family: 'Circe';
+            src: local('Circe'), url('Circe-Regular.woff2') format('woff2');
+            font-weight: normal;
+        }
+        @font-face {
+            font-family: 'Circe';
+            src: local('Circe Bold'), url('Circe-Bold.woff2') format('woff2');
+            font-weight: bold;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Применяем шрифт Circe */
+            font-family: 'Circe', sans-serif;
+            background-color: #F4F1ED;
+            color: #1F2240;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            background-color: #211D42;
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        main {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            width: 176px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            color: #4A4A4A;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .transport-info {
+            font-size: 16px;
+            color: #0E1A40;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .transport-number {
+            color: #0E1A40;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0E1A40;
+            margin-bottom: 10px;
+        }
+        
+        .ruble-sign {
+            /* Знак рубля тоже будет шрифтом Circe, если в нем есть этот символ */
+            font-family: 'Circe', sans-serif;
+        }
+
+        .datetime {
+            color: #666666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .tech-info {
+            color: #C0C0C0;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .timer-label {
+            color: #4A4A4A;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .timer-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0E1A40;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .timer-value:active {
+            opacity: 0.7;
+        }
+
+        /* Контейнер для QR кода */
+        .qr-code-container {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .qr-code-container canvas, .qr-code-container img {
+            max-width: 100%;
+        }
+
+        .ticket-details {
+            font-size: 13px;
+            color: #2F3555;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .ticket-details strong {
+            color: #0E1A40;
+            font-weight: bold;
+        }
+
+        .instructions {
+            font-size: 12px;
+            color: #1F2240;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .btn-download {
+            background-color: #81BA38;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Circe', sans-serif;
+        }
+
+        .btn-download:hover {
+            background-color: #72a531;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        Уведомление об оплате
+    </header>
+
+    <main>
+        <img src="logo.svg" alt="СБП" class="logo">
+
+        <div class="success-message">
+            Ваш проезд успешно оплачен!
+        </div>
+
+        <div class="transport-info">
+            <span id="vehicle-type">Трамвай</span>: <span class="transport-number" id="route-number">№15</span>
+        </div>
+
+        <div class="price">
+            33 <span class="ruble-sign">₽</span>
+        </div>
+
+        <div class="datetime" id="datetime-display">
+            17.12.2025 19:25
+        </div>
+
+        <div class="tech-info">
+            Т/С: <span id="vehicle-number">557</span>
+        </div>
+
+        <div class="timer-label">
+            С момента оплаты прошло:
+        </div>
+        
+        <div class="timer-value" id="timer-display">
+            02:04:25
+        </div>
+
+        <!-- Контейнер для QR -->
+        <div id="qrcode" class="qr-code-container"></div>
+
+        <div class="ticket-details">
+            <div>Серия билета: <strong id="ticket-series">QR200938000294</strong></div>
+            <div>Номер билета: <strong id="ticket-number">20251217142520099</strong></div>
+        </div>
+
+        <div class="instructions">
+            Предъявите контролеру QR-код.<br>
+            Чтобы сохранить реквизиты билета, нажмите кнопку «Скачать»
+        </div>
+
+        <button class="btn-download">Скачать билет</button>
+    </main>
+
+    <script>
+        const timerElement = document.getElementById('timer-display');
+        const dateElement = document.getElementById('datetime-display');
+        const qrContainer = document.getElementById('qrcode');
+        
+        const ticketSeries = document.getElementById('ticket-series').textContent;
+        const ticketNumber = document.getElementById('ticket-number').textContent;
+        const routeNumber = document.getElementById('route-number').textContent;
+        const vehicleType = document.getElementById('vehicle-type').textContent;
+        const vehicleNumber = document.getElementById('vehicle-number').textContent;
+
+        let timerInterval = null;
+        let startTime = null;
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function getCurrentDateTimeString() {
+            const now = new Date();
+            const day = pad(now.getDate());
+            const month = pad(now.getMonth() + 1);
+            const year = now.getFullYear();
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - startTime) / 1000);
+            const hours = Math.floor(diffInSeconds / 3600);
+            const minutes = Math.floor((diffInSeconds % 3600) / 60);
+            const seconds = diffInSeconds % 60;
+            timerElement.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function generateQR(currentDate) {
+            // Очищаем контейнер
+            qrContainer.innerHTML = "";
+
+            const qrData = {
+                "билет": {
+                    "серия": ticketSeries,
+                    "номер": ticketNumber,
+                    "дата": currentDate,
+                    "маршрут": routeNumber
+                },
+                "тс": {
+                    "тип": vehicleType,
+                    "номер": vehicleNumber
+                }
+            };
+
+            const jsonString = JSON.stringify(qrData);
+
+            // EasyQRCodeJS
+            new QRCode(qrContainer, {
+                text: jsonString,
+                width: 240,
+                height: 240,
+                colorDark : "#000000",
+                colorLight : "#F4F1ED",
+                correctLevel : QRCode.CorrectLevel.L,
+                quietZone: 2,
+                logo: null 
+            });
+        }
+
+        // Инициализация при загрузке
+        generateQR(dateElement.textContent.trim());
+
+        // Обработчик клика по таймеру
+        timerElement.addEventListener('click', () => {
+            const newDate = getCurrentDateTimeString();
+            dateElement.textContent = newDate;
+            
+            generateQR(newDate);
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            startTime = new Date();
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        });
+    </script>
+</body>
+</html>
