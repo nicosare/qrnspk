@@ -289,6 +289,43 @@
             outline: none;
         }
 
+        /* Замените существующие стили для .legal-footer и .legal-notice на эти */
+
+.legal-footer {
+    width: 100%;
+    max-width: 480px; /* Ограничиваем ширину, как у основного блока */
+    margin: 30px auto 0; /* Отступ сверху и центрирование */
+    padding: 20px;
+    background-color: #f5f1e8;
+    border-top: 2px dashed #d9d1c0; /* Изменён стиль границы для наглядности */
+    font-family: 'Circe', sans-serif;
+    box-sizing: border-box; /* Учитываем padding в ширине */
+}
+
+.legal-notice {
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1F2240;
+}
+
+.legal-notice strong {
+    color: #1d1346;
+}
+
+.readme-link {
+    display: inline-block; /* Ссылка теперь в строку с текстом */
+    margin-top: 5px;
+    color: #78b72a;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.readme-link:hover {
+    color: #5a8a20;
+    text-decoration: underline;
+}
     </style>
 </head>
 <body>
@@ -608,4 +645,10 @@
     window.addEventListener('DOMContentLoaded', initializePage);
 </script>
 </body>
+<footer class="legal-footer">
+    <div class="legal-notice">
+        <strong>ВНИМАНИЕ:</strong> Данная страница является <strong>исключительно демонстрационной и тестовой</strong>. Она создана в образовательных целях для демонстрации навыков вёрстки и программирования и <strong>не предназначена для реальной оплаты проезда</strong>.
+        <a href="README.md" target="_blank" class="readme-link">Подробнее о целях проекта и юридических ограничениях</a>
+    </div>
+</footer>
 </html>
