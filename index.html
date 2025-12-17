@@ -1,324 +1,480 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Уведомление об оплате</title>
-    <!-- Подключаем библиотеку для QR -->
-    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script>
-    <style>
-       @font-face {
-            font-family: 'Circe';
-            src: local('Circe'), url('Circe-Regular.woff2') format('woff2');
-            font-weight: normal;
-        }
-        @font-face {
-            font-family: 'Circe';
-            src: local('Circe Bold'), url('Circe-Bold.woff2') format('woff2');
-            font-weight: bold;
-        }
+<!DOCTYPE html><html lang="ru"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Уведомление об оплате</title> <!-- Подключаем библиотеку для QR --> <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script> <style> @font-face { font-family: 'Circe'; src: local('Circe'), url('Circe-Regular.woff2') format('woff2'); font-weight: normal; } @font-face { font-family: 'Circe'; src: local('Circe Bold'), url('Circe-Bold.woff2') format('woff2'); font-weight: bold; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        body {
-            /* Применяем шрифт Circe */
-            font-family: 'Circe', sans-serif;
-            background-color: #f5f1e8;
-            color: #1F2240;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+    body {
+        /* Применяем шрифт Circe */
+        font-family: 'Circe', sans-serif;
+        background-color: #f5f1e8;
+        color: #1F2240;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
 
-        header {
-            width: 100%;
-            height: 56px;
-            text-align: center;
-            background-color: #1d1346;
-            color: white;
-            display: flex;
-            text-align: center;
-            justify-content: center;
-            padding: 20px 0;
-            font-weight: bold;
-            font-size: 18px;
-        }
+    header {
+        width: 100%;
+        height: 56px;
+        text-align: center;
+        background-color: #1d1346;
+        color: white;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        padding: 20px 0;
+        font-weight: bold;
+        font-size: 18px;
+    }
 
-        main {
-            width: 100%;
-            max-width: 480px;
-            padding: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    main {
+        width: 100%;
+        max-width: 480px;
+        padding: 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        .logo {
-            width: 176px;
-            margin-bottom: 18px;
-        }
+    .logo {
+        width: 176px;
+        margin-bottom: 18px;
+    }
 
-        .success-message {
-            color: #1d1346;
-            font-size: 18px;
-            font-weight: 500;
-            line-height: 24px;  
-        }
+    .success-message {
+        color: #1d1346;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 24px;  
+    }
 
-        .transport-info {
-            font-size: 20px;
-            color: #1d1346;
-            margin-top: 36px;
-            font-weight: 600;
-        }
+    .transport-info {
+        font-size: 20px;
+        color: #1d1346;
+        margin-top: 36px;
+        font-weight: 600;
+    }
+    
+    .transport-number {
+        color: #1d1346;
+    }
+
+    .price {
+        margin-top: -6px;
+        font-size: 48px;
+        font-weight: bold;
+        color: #1d1346;
+        margin-bottom: 10px;
+    }
+    
+    .ruble-sign {
+        /* Знак рубля тоже будет шрифтом Circe, если в нем есть этот символ */
+        font-family: 'Circe', sans-serif;
+        font-weight: 400;
+    }
+
+    .datetime {
+        color: #1d1346;
+        font-size: 18px;
+    }
+
+    .tech-info {
+        color: #b5b5b5;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .timer-label {
+        color: #1d1346;
+        font-size: 18px;
+        margin-bottom: -9px;
+    }
+
+    .timer-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #1d1346;
+        margin-bottom: 24px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        user-select: none;
+        transition: opacity 0.2s;
+    }
+
+    .timer-value:active {
+        opacity: 0.7;
+    }
+
+    /* Контейнер для QR кода */
+    .qr-code-container {
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .qr-code-container canvas, .qr-code-container img {
+        max-width: 100%;
+    }
+
+    .ticket-details {
+        font-size: 18px;
+        color: #1d1346;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    .ticket-details strong {
+        color: #1d1346;
+        font-weight: bold;
+    }
+
+    .instructions {
+        font-size: 18px;
+        color: #1d1346;
+        margin-bottom: 25px;
+        line-height: 1.4;
+    }
+
+    .btn-download {
+        background-color: #78b72a;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        border-radius: 6px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        font-family: 'Circe', sans-serif;
+    }
+
+    .btn-download:hover {
+        background-color: #78b72a;
+    }
+
+    /* Стили для выпадающего списка */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 140px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 100%;
+        margin-top: 5px;
+    }
+
+    .dropdown-content span {
+        color: #1d1346;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .dropdown-content span:hover {
+        background-color: #f5f1e8;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    /* Стили для редактируемых полей */
+    .editable {
+        cursor: pointer;
+        position: relative;
+        display: inline-block;
+    }
+
+    .editable:hover::after {
+        content: '✎';
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #b5b5b5;
+    }
+
+    .edit-input {
+        font-family: 'Circe', sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1d1346;
+        background: transparent;
+        border: 1px solid #1d1346;
+        border-radius: 3px;
+        padding: 2px 5px;
+        text-align: center;
+        width: 80px;
+        outline: none;
+    }
+
+    .edit-input-small {
+        font-family: 'Circe', sans-serif;
+        font-size: 16px;
+        color: #b5b5b5;
+        background: transparent;
+        border: 1px solid #b5b5b5;
+        border-radius: 3px;
+        padding: 1px 3px;
+        text-align: center;
+        width: 60px;
+        outline: none;
+    }
+
+</style>
+</head> <body>
+
+<header>
+    Уведомление об оплате
+</header>
+
+<main>
+    <img src="logo.svg" alt="СБП" class="logo">
+
+    <div class="success-message">
+        Ваш проезд успешно оплачен!
+    </div>
+
+    <div class="transport-info">
+        <span class="dropdown" id="vehicle-type-dropdown">
+            <span class="editable" id="vehicle-type">Трамвай</span>
+            <div class="dropdown-content">
+                <span data-value="Трамвай">Трамвай</span>
+                <span data-value="Автобус">Автобус</span>
+                <span data-value="Троллейбус">Троллейбус</span>
+            </div>
+        </span>: 
+        <span class="editable" id="route-number">№15</span>
+    </div>
+
+    <div class="price">
+        33 <span class="ruble-sign">₽</span>
+    </div>
+
+    <div class="datetime" id="datetime-display">
+        17.12.2025 19:25
+    </div>
+
+    <div class="tech-info">
+        Т/С: <span class="editable" id="vehicle-number">557</span>
+    </div>
+
+    <div class="timer-label">
+        С момента оплаты прошло:
+    </div>
+    
+    <div class="timer-value" id="timer-display">
+        02:04:25
+    </div>
+
+    <!-- Контейнер для QR -->
+    <div id="qrcode" class="qr-code-container"></div>
+
+    <div class="ticket-details">
+        <div>Серия билета: <strong id="ticket-series">QR200938000294</strong></div>
+        <div>Номер билета: <strong id="ticket-number">20251217142520099</strong></div>
+    </div>
+
+    <div class="instructions">
+        Предъявите контролеру QR-код.<br>
+        Чтобы сохранить реквизиты билета, нажмите кнопку «Скачать»
+    </div>
+
+    <button class="btn-download">Скачать билет</button>
+</main>
+
+<script>
+    const timerElement = document.getElementById('timer-display');
+    const dateElement = document.getElementById('datetime-display');
+    const qrContainer = document.getElementById('qrcode');
+    const vehicleTypeElement = document.getElementById('vehicle-type');
+    const routeNumberElement = document.getElementById('route-number');
+    const vehicleNumberElement = document.getElementById('vehicle-number');
+    const ticketSeriesElement = document.getElementById('ticket-series');
+    const ticketNumberElement = document.getElementById('ticket-number');
+
+    let timerInterval = null;
+    let startTime = null;
+    let ticketSeries = ticketSeriesElement.textContent;
+    let ticketNumber = ticketNumberElement.textContent;
+
+    function pad(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    function getCurrentDateTimeString(date = new Date()) {
+        const day = pad(date.getDate());
+        const month = pad(date.getMonth() + 1);
+        const year = date.getFullYear();
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
         
-        .transport-number {
-            color: #1d1346;
-        }
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+    }
 
-        .price {
-            margin-top: -6px;
-            font-size: 48px;
-            font-weight: bold;
-            color: #1d1346;
-            margin-bottom: 10px;
-        }
+    function generateTicketNumber(date = new Date()) {
+        // Создаем копию даты для вычислений
+        const adjustedDate = new Date(date);
         
-        .ruble-sign {
-            /* Знак рубля тоже будет шрифтом Circe, если в нем есть этот символ */
-            font-family: 'Circe', sans-serif;
-            font-weight: 400;
-        }
-
-        .datetime {
-            color: #1d1346;
-            font-size: 18px;
-        }
-
-        .tech-info {
-            color: #b5b5b5;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-
-        .timer-label {
-            color: #1d1346;
-            font-size: 18px;
-            margin-bottom: -9px;
-        }
-
-        .timer-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1d1346;
-            margin-bottom: 24px;
-            letter-spacing: 1px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.2s;
-        }
-
-        .timer-value:active {
-            opacity: 0.7;
-        }
-
-        /* Контейнер для QR кода */
-        .qr-code-container {
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        // Вычитаем 5 часов
+        adjustedDate.setHours(adjustedDate.getHours() - 5);
         
-        .qr-code-container canvas, .qr-code-container img {
-            max-width: 100%;
-        }
-
-        .ticket-details {
-            font-size: 18px;
-            color: #1d1346;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-
-        .ticket-details strong {
-            color: #1d1346;
-            font-weight: bold;
-        }
-
-        .instructions {
-            font-size: 18px;
-            color: #1d1346;
-            margin-bottom: 25px;
-            line-height: 1.4;
-        }
-
-        .btn-download {
-            background-color: #78b72a;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 14px;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            font-family: 'Circe', sans-serif;
-        }
-
-        .btn-download:hover {
-            background-color: #78b72a;
-        }
-
-    </style>
-</head>
-<body>
-
-    <header>
-        Уведомление об оплате
-    </header>
-
-    <main>
-        <img src="logo.svg" alt="СБП" class="logo">
-
-        <div class="success-message">
-            Ваш проезд успешно оплачен!
-        </div>
-
-        <div class="transport-info">
-            <span id="vehicle-type">Трамвай</span>: <span class="transport-number" id="route-number">№15</span>
-        </div>
-
-        <div class="price">
-            33 <span class="ruble-sign">₽</span>
-        </div>
-
-        <div class="datetime" id="datetime-display">
-            17.12.2025 19:25
-        </div>
-
-        <div class="tech-info">
-            Т/С: <span id="vehicle-number">557</span>
-        </div>
-
-        <div class="timer-label">
-            С момента оплаты прошло:
-        </div>
+        // Формируем компоненты номера билета
+        const year = adjustedDate.getFullYear();
+        const month = pad(adjustedDate.getMonth() + 1);
+        const day = pad(adjustedDate.getDate());
+        const hours = pad(adjustedDate.getHours());
+        const minutes = pad(adjustedDate.getMinutes());
+        const seconds = pad(adjustedDate.getSeconds());
+        const milliseconds = adjustedDate.getMilliseconds().toString().padStart(3, '0');
         
-        <div class="timer-value" id="timer-display">
-            02:04:25
-        </div>
+        // Собираем все вместе
+        return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+    }
 
-        <!-- Контейнер для QR -->
-        <div id="qrcode" class="qr-code-container"></div>
+    function updateTimer() {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - startTime) / 1000);
+        const hours = Math.floor(diffInSeconds / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+        const seconds = diffInSeconds % 60;
+        timerElement.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
 
-        <div class="ticket-details">
-            <div>Серия билета: <strong id="ticket-series">QR200938000294</strong></div>
-            <div>Номер билета: <strong id="ticket-number">20251217142520099</strong></div>
-        </div>
+    function generateQR() {
+        // Очищаем контейнер
+        qrContainer.innerHTML = "";
 
-        <div class="instructions">
-            Предъявите контролеру QR-код.<br>
-            Чтобы сохранить реквизиты билета, нажмите кнопку «Скачать»
-        </div>
-
-        <button class="btn-download">Скачать билет</button>
-    </main>
-
-    <script>
-        const timerElement = document.getElementById('timer-display');
-        const dateElement = document.getElementById('datetime-display');
-        const qrContainer = document.getElementById('qrcode');
+        // Убираем символ № из номера маршрута
+        const cleanRouteNumber = routeNumberElement.textContent.replace('№', '').trim();
+        const currentDate = dateElement.textContent.trim();
+        const vehicleType = vehicleTypeElement.textContent;
+        const vehicleNumber = vehicleNumberElement.textContent;
         
-        const ticketSeries = document.getElementById('ticket-series').textContent;
-        const ticketNumber = document.getElementById('ticket-number').textContent;
-        const routeNumber = document.getElementById('route-number').textContent;
-        const vehicleType = document.getElementById('vehicle-type').textContent;
-        const vehicleNumber = document.getElementById('vehicle-number').textContent;
+        // Формируем строку в нужном формате
+        const qrData = `билет:
+  серия: "${ticketSeries}"
+  номер: "${ticketNumber}"
+  дата: "${currentDate}"
+  маршрут: "${cleanRouteNumber}"
+тс:
+  тип: "${vehicleType}"
+  номер: "${vehicleNumber}"`;
 
-        let timerInterval = null;
-        let startTime = null;
-
-        function pad(num) {
-            return num.toString().padStart(2, '0');
-        }
-
-        function getCurrentDateTimeString() {
-            const now = new Date();
-            const day = pad(now.getDate());
-            const month = pad(now.getMonth() + 1);
-            const year = now.getFullYear();
-            const hours = pad(now.getHours());
-            const minutes = pad(now.getMinutes());
-            
-            return `${day}.${month}.${year} ${hours}:${minutes}`;
-        }
-
-        function updateTimer() {
-            const now = new Date();
-            const diffInSeconds = Math.floor((now - startTime) / 1000);
-            const hours = Math.floor(diffInSeconds / 3600);
-            const minutes = Math.floor((diffInSeconds % 3600) / 60);
-            const seconds = diffInSeconds % 60;
-            timerElement.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-        }
-
-        function generateQR(currentDate) {
-            // Очищаем контейнер
-            qrContainer.innerHTML = "";
-
-            const qrData = {
-                "билет": {
-                    "серия": ticketSeries,
-                    "номер": ticketNumber,
-                    "дата": currentDate,
-                    "маршрут": routeNumber
-                },
-                "тс": {
-                    "тип": vehicleType,
-                    "номер": vehicleNumber
-                }
-            };
-
-            const jsonString = JSON.stringify(qrData);
-
-            // EasyQRCodeJS
-            new QRCode(qrContainer, {
-                text: jsonString,
-                width: 1496,
-                height: 1496,
-                colorDark : "#000000",
-                colorLight : "#F4F1ED",
-                correctLevel : QRCode.CorrectLevel.L,
-                quietZone: 2,
-                logo: null 
-            });
-        }
-
-        // Инициализация при загрузке
-        generateQR(dateElement.textContent.trim());
-
-        // Обработчик клика по таймеру
-        timerElement.addEventListener('click', () => {
-            const newDate = getCurrentDateTimeString();
-            dateElement.textContent = newDate;
-            
-            generateQR(newDate);
-
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            startTime = new Date();
-            updateTimer();
-            timerInterval = setInterval(updateTimer, 1000);
+        // EasyQRCodeJS
+        new QRCode(qrContainer, {
+            text: qrData,
+            width: 1496,
+            height: 1496,
+            colorDark : "#000000",
+            colorLight : "#F4F1ED",
+            correctLevel : QRCode.CorrectLevel.L,
+            quietZone: 2,
+            logo: null 
         });
-    </script>
-</body>
-</html>
+    }
+
+    // Функция для замены текста на поле ввода
+    function makeEditable(element, isSmall = false) {
+        const originalText = element.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = isSmall ? 'edit-input-small' : 'edit-input';
+        input.value = originalText.replace('№', '');
+        
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+        input.select();
+        
+        function save() {
+            let newValue = input.value.trim();
+            if (element.id === 'route-number' && newValue !== '') {
+                newValue = '№' + newValue;
+            }
+            element.textContent = newValue;
+            generateQR();
+            
+            // Восстанавливаем обработчики событий
+            if (element.id === 'route-number' || element.id === 'vehicle-number') {
+                element.addEventListener('click', handleEditableClick);
+            }
+        }
+        
+        input.addEventListener('blur', save);
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                save();
+            }
+        });
+    }
+
+    // Обработчик клика на редактируемых полях
+    function handleEditableClick(e) {
+        if (e.target === vehicleTypeElement) return; // Для типа ТС отдельная логика
+        
+        const isSmall = e.target.id === 'vehicle-number';
+        makeEditable(e.target, isSmall);
+        
+        // Удаляем обработчик на время редактирования
+        e.target.removeEventListener('click', handleEditableClick);
+    }
+
+    // Инициализация при загрузке
+    generateQR();
+
+    // Назначаем обработчики для редактируемых полей
+    routeNumberElement.addEventListener('click', handleEditableClick);
+    vehicleNumberElement.addEventListener('click', handleEditableClick);
+
+    // Обработчик для выбора типа транспорта
+    const dropdownOptions = document.querySelectorAll('.dropdown-content span');
+    dropdownOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            vehicleTypeElement.textContent = this.getAttribute('data-value');
+            generateQR();
+        });
+    });
+
+    // Обработчик клика по таймеру
+    timerElement.addEventListener('click', () => {
+        const now = new Date();
+        const newDate = getCurrentDateTimeString(now);
+        dateElement.textContent = newDate;
+        
+        // Генерируем новый номер билета
+        const newTicketNumber = generateTicketNumber(now);
+        ticketNumber = newTicketNumber;
+        ticketNumberElement.textContent = newTicketNumber;
+        
+        generateQR();
+
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        startTime = new Date();
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    });
+</script>
+</body> </html>
