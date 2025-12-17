@@ -1,249 +1,297 @@
-<!DOCTYPE html><html lang="ru"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Уведомление об оплате</title> <!-- Подключаем библиотеку для QR --> <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script> <style> @font-face { font-family: 'Circe'; src: local('Circe'), url('Circe-Regular.woff2') format('woff2'); font-weight: normal; } @font-face { font-family: 'Circe'; src: local('Circe Bold'), url('Circe-Bold.woff2') format('woff2'); font-weight: bold; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уведомление об оплате</title>
+    <!-- Подключаем библиотеку для QR -->
+    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Circe';
+            src: local('Circe'), url('Circe-Regular.woff2') format('woff2');
+            font-weight: normal;
+        }
+        @font-face {
+            font-family: 'Circe';
+            src: local('Circe Bold'), url('Circe-Bold.woff2') format('woff2');
+            font-weight: bold;
+        }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-        /* Применяем шрифт Circe */
-        font-family: 'Circe', sans-serif;
-        background-color: #f5f1e8;
-        color: #1F2240;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-    }
+        body {
+            font-family: 'Circe', sans-serif;
+            background-color: #f5f1e8;
+            color: #1F2240;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    header {
-        width: 100%;
-        height: 56px;
-        text-align: center;
-        background-color: #1d1346;
-        color: white;
-        display: flex;
-        text-align: center;
-        justify-content: center;
-        padding: 12px 0;
-        font-weight: bold;
-        font-size: 20px;
-    }
+        header {
+            width: 100%;
+            height: 56px;
+            text-align: center;
+            background-color: #1d1346;
+            color: white;
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            padding: 12px 0;
+            font-weight: bold;
+            font-size: 20px;
+        }
 
-    main {
-        width: 100%;
-        max-width: 480px;
-        padding: 20px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+        main {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .logo {
-        width: 176px;
-        margin-bottom: 18px;
-    }
+        .logo {
+            width: 176px;
+            margin-bottom: 18px;
+        }
 
-    .success-message {
-        color: #1d1346;
-        font-size: 18px;
-        font-weight: 500;
-        line-height: 24px;  
-    }
+        .success-message {
+            color: #1d1346;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 24px;  
+        }
 
-    .transport-info {
-        font-size: 20px;
-        color: #1d1346;
-        margin-top: 36px;
-        font-weight: 600;
-    }
-    
-    .transport-number {
-        color: #1d1346;
-    }
+        .transport-info {
+            font-size: 20px;
+            color: #1d1346;
+            margin-top: 36px;
+            font-weight: 600;
+        }
+        
+        .transport-number {
+            color: #1d1346;
+        }
 
-    .price {
-        margin-top: -6px;
-        font-size: 48px;
-        font-weight: bold;
-        color: #1d1346;
-        margin-bottom: 10px;
-    }
-    
-    .ruble-sign {
-        /* Знак рубля тоже будет шрифтом Circe, если в нем есть этот символ */
-        font-family: 'Circe', sans-serif;
-        font-weight: 500;
-    }
+        .price-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -6px;
+            margin-bottom: 10px;
+        }
 
-    .datetime {
-        color: #1d1346;
-        font-size: 18px;
-    }
+        .price {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1d1346;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
 
-    .tech-info {
-        color: #b5b5b5;
-        font-size: 16px;
-        margin-bottom: 30px;
-    }
+        .price:hover::after {
+            content: '✎';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #b5b5b5;
+        }
+        
+        .ruble-sign {
+            font-family: 'Circe', sans-serif;
+            font-weight: 500;
+            font-size: 48px;
+            margin-left: 5px;
+        }
 
-    .timer-label {
-        color: #1d1346;
-        font-size: 18px;
-        margin-bottom: -9px;
-    }
+        .datetime {
+            color: #1d1346;
+            font-size: 18px;
+        }
 
-    .timer-value {
-        font-size: 32px;
-        font-weight: bold;
-        color: #1d1346;
-        margin-bottom: 24px;
-        letter-spacing: 1px;
-        cursor: pointer;
-        user-select: none;
-        transition: opacity 0.2s;
-    }
+        .tech-info {
+            color: #b5b5b5;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
 
-    .timer-value:active {
-        opacity: 0.7;
-    }
+        .timer-label {
+            color: #1d1346;
+            font-size: 18px;
+            margin-bottom: -9px;
+        }
 
-    /* Контейнер для QR кода */
-    .qr-code-container {
-        margin-bottom: 25px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .qr-code-container canvas, .qr-code-container img {
-        max-width: 100%;
-    }
+        .timer-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1d1346;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
 
-    .ticket-details {
-        font-size: 18px;
-        color: #1d1346;
-        line-height: 1.5;
-        margin-bottom: 25px;
-    }
+        .timer-value:active {
+            opacity: 0.7;
+        }
 
-    .ticket-details strong {
-        color: #1d1346;
-        font-weight: bold;
-    }
+        .qr-code-container {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .qr-code-container canvas, .qr-code-container img {
+            max-width: 100%;
+        }
 
-    .instructions {
-        font-size: 18px;
-        color: #1d1346;
-        margin-bottom: 25px;
-        line-height: 1.4;
-    }
+        .ticket-details {
+            font-size: 18px;
+            color: #1d1346;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
 
-    .btn-download {
-        background-color: #78b72a;
-        color: white;
-        border: none;
-        width: 100%;
-        padding: 14px;
-        border-radius: 6px;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        font-family: 'Circe', sans-serif;
-    }
+        .ticket-details strong {
+            color: #1d1346;
+            font-weight: bold;
+        }
 
-    .btn-download:hover {
-        background-color: #78b72a;
-    }
+        .instructions {
+            font-size: 18px;
+            color: #1d1346;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
 
-    /* Стили для выпадающего списка */
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+        .btn-download {
+            background-color: #78b72a;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Circe', sans-serif;
+        }
 
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 140px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
-        border-radius: 4px;
-        left: 50%;
-        transform: translateX(-50%);
-        top: 100%;
-        margin-top: 5px;
-    }
+        .btn-download:hover {
+            background-color: #78b72a;
+        }
 
-    .dropdown-content span {
-        color: #1d1346;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        cursor: pointer;
-        text-align: center;
-        font-size: 18px;
-    }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-content span:hover {
-        background-color: #f5f1e8;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 140px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-top: 5px;
+        }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+        .dropdown-content span {
+            color: #1d1346;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+        }
 
-    /* Стили для редактируемых полей */
-    .editable {
-        cursor: pointer;
-        position: relative;
-        display: inline-block;
-    }
+        .dropdown-content span:hover {
+            background-color: #f5f1e8;
+        }
 
-    .editable:hover::after {
-        content: '✎';
-        position: absolute;
-        right: -20px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 14px;
-        color: #b5b5b5;
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-    .edit-input {
-        font-family: 'Circe', sans-serif;
-        font-size: 20px;
-        font-weight: 600;
-        color: #1d1346;
-        background: transparent;
-        border: 1px solid #1d1346;
-        border-radius: 3px;
-        padding: 2px 5px;
-        text-align: center;
-        width: 80px;
-        outline: none;
-    }
+        .editable {
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
 
-    .edit-input-small {
-        font-family: 'Circe', sans-serif;
-        font-size: 16px;
-        color: #b5b5b5;
-        background: transparent;
-        border: 1px solid #b5b5b5;
-        border-radius: 3px;
-        padding: 1px 3px;
-        text-align: center;
-        width: 60px;
-        outline: none;
-    }
+        .editable:hover::after {
+            content: '✎';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: #b5b5b5;
+        }
 
-</style>
-</head> <body>
+        .edit-input {
+            font-family: 'Circe', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1346;
+            background: transparent;
+            border: 1px solid #1d1346;
+            border-radius: 3px;
+            padding: 2px 5px;
+            text-align: center;
+            width: 80px;
+            outline: none;
+        }
 
+        .edit-input-small {
+            font-family: 'Circe', sans-serif;
+            font-size: 16px;
+            color: #b5b5b5;
+            background: transparent;
+            border: 1px solid #b5b5b5;
+            border-radius: 3px;
+            padding: 1px 3px;
+            text-align: center;
+            width: 60px;
+            outline: none;
+        }
+
+        .edit-input-price {
+            font-family: 'Circe', sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            color: #1d1346;
+            background: transparent;
+            border: 1px solid #1d1346;
+            border-radius: 3px;
+            padding: 2px 5px;
+            text-align: center;
+            width: 100px;
+            outline: none;
+        }
+
+    </style>
+</head>
+<body>
 <header>
     Уведомление об оплате
 </header>
@@ -267,8 +315,9 @@
         <span class="editable" id="route-number">№15</span>
     </div>
 
-    <div class="price">
-        33 <span class="ruble-sign">₽</span>
+    <div class="price-container">
+        <span class="price" id="price-value">33</span>
+        <span class="ruble-sign">₽</span>
     </div>
 
     <div class="datetime" id="datetime-display">
@@ -287,7 +336,6 @@
         02:04:25
     </div>
 
-    <!-- Контейнер для QR -->
     <div id="qrcode" class="qr-code-container"></div>
 
     <div class="ticket-details">
@@ -312,6 +360,7 @@
     const vehicleNumberElement = document.getElementById('vehicle-number');
     const ticketSeriesElement = document.getElementById('ticket-series');
     const ticketNumberElement = document.getElementById('ticket-number');
+    const priceElement = document.getElementById('price-value');
 
     let timerInterval = null;
     let startTime = null;
@@ -333,13 +382,9 @@
     }
 
     function generateTicketNumber(date = new Date()) {
-        // Создаем копию даты для вычислений
         const adjustedDate = new Date(date);
-        
-        // Вычитаем 5 часов
         adjustedDate.setHours(adjustedDate.getHours() - 5);
         
-        // Формируем компоненты номера билета
         const year = adjustedDate.getFullYear();
         const month = pad(adjustedDate.getMonth() + 1);
         const day = pad(adjustedDate.getDate());
@@ -348,7 +393,6 @@
         const seconds = pad(adjustedDate.getSeconds());
         const milliseconds = adjustedDate.getMilliseconds().toString().padStart(3, '0');
         
-        // Собираем все вместе
         return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
     }
 
@@ -362,45 +406,55 @@
     }
 
     function generateQR() {
-        // Очищаем контейнер
         qrContainer.innerHTML = "";
 
-        // Убираем символ № из номера маршрута
         const cleanRouteNumber = routeNumberElement.textContent.replace('№', '').trim();
         const currentDate = dateElement.textContent.trim();
         const vehicleType = vehicleTypeElement.textContent;
         const vehicleNumber = vehicleNumberElement.textContent;
+        const price = priceElement.textContent;
         
-        // Формируем строку в нужном формате
         const qrData = `билет:
   серия: "${ticketSeries}"
   номер: "${ticketNumber}"
   дата: "${currentDate}"
   маршрут: "${cleanRouteNumber}"
+  стоимость: "${price} ₽"
 тс:
   тип: "${vehicleType}"
   номер: "${vehicleNumber}"`;
 
-        // EasyQRCodeJS
         new QRCode(qrContainer, {
             text: qrData,
             width: 1496,
             height: 1496,
-            colorDark : "#000000",
-            colorLight : "#F4F1ED",
-            correctLevel : QRCode.CorrectLevel.L,
+            colorDark: "#000000",
+            colorLight: "#F4F1ED",
+            correctLevel: QRCode.CorrectLevel.L,
             quietZone: 2,
             logo: null 
         });
     }
 
-    // Функция для замены текста на поле ввода
-    function makeEditable(element, isSmall = false) {
+    function makeEditable(element, options = {}) {
         const originalText = element.textContent;
         const input = document.createElement('input');
         input.type = 'text';
-        input.className = isSmall ? 'edit-input-small' : 'edit-input';
-        input.value = originalText.replace('№', '');
+        
+        if (element.id === 'price-value') {
+            input.className = 'edit-input-price';
+        } else if (element.id === 'vehicle-number') {
+            input.className = 'edit-input-small';
+        } else {
+            input.className = 'edit-input';
+        }
+        
+        let displayValue = originalText;
+        if (element.id === 'route-number') {
+            displayValue = originalText.replace('№', '');
+        }
+        
+        input.value = displayValue;
         
         element.textContent = '';
         element.appendChild(input);
@@ -409,14 +463,36 @@
         
         function save() {
             let newValue = input.value.trim();
+            
+            // Валидация для цены (только числа)
+            if (element.id === 'price-value') {
+                if (!/^\d+$/.test(newValue)) {
+                    alert('Введите только цифры для стоимости');
+                    newValue = originalText;
+                }
+            }
+            
             if (element.id === 'route-number' && newValue !== '') {
                 newValue = '№' + newValue;
             }
+            
             element.textContent = newValue;
+            
+            // Сохраняем в localStorage
+            if (element.id === 'price-value') {
+                localStorage.setItem('ticketPrice', newValue);
+            } else if (element.id === 'route-number') {
+                localStorage.setItem('routeNumber', newValue);
+            } else if (element.id === 'vehicle-number') {
+                localStorage.setItem('vehicleNumber', newValue);
+            } else if (element.id === 'vehicle-type') {
+                localStorage.setItem('vehicleType', newValue);
+            }
+            
             generateQR();
             
             // Восстанавливаем обработчики событий
-            if (element.id === 'route-number' || element.id === 'vehicle-number') {
+            if (['route-number', 'vehicle-number', 'price-value'].includes(element.id)) {
                 element.addEventListener('click', handleEditableClick);
             }
         }
@@ -429,81 +505,107 @@
         });
     }
 
-    // Обработчик клика на редактируемых полях
     function handleEditableClick(e) {
-        if (e.target === vehicleTypeElement) return; // Для типа ТС отдельная логика
-        
-        const isSmall = e.target.id === 'vehicle-number';
-        makeEditable(e.target, isSmall);
-        
-        // Удаляем обработчик на время редактирования
+        if (e.target === vehicleTypeElement) return;
+        makeEditable(e.target);
         e.target.removeEventListener('click', handleEditableClick);
     }
 
-    // Инициализация при загрузке - запуск таймера с текущим временем
     function initializeTimer() {
         const now = new Date();
         startTime = now;
         
-        // Устанавливаем текущую дату и время
         const currentDateTime = getCurrentDateTimeString(now);
         dateElement.textContent = currentDateTime;
         
-        // Генерируем номер билета на основе текущего времени
         ticketNumber = generateTicketNumber(now);
         ticketNumberElement.textContent = ticketNumber;
         
-        // Обновляем таймер
         updateTimer();
         
-        // Запускаем интервал для обновления таймера каждую секунду
         if (timerInterval) {
             clearInterval(timerInterval);
         }
         timerInterval = setInterval(updateTimer, 1000);
         
-        // Генерируем QR-код
         generateQR();
     }
 
-    // Вызываем инициализацию при загрузке
-    initializeTimer();
+    function loadFromLocalStorage() {
+        // Загружаем сохраненные значения
+        const savedPrice = localStorage.getItem('ticketPrice');
+        if (savedPrice) {
+            priceElement.textContent = savedPrice;
+        }
+        
+        const savedRouteNumber = localStorage.getItem('routeNumber');
+        if (savedRouteNumber) {
+            routeNumberElement.textContent = savedRouteNumber;
+        }
+        
+        const savedVehicleNumber = localStorage.getItem('vehicleNumber');
+        if (savedVehicleNumber) {
+            vehicleNumberElement.textContent = savedVehicleNumber;
+        }
+        
+        const savedVehicleType = localStorage.getItem('vehicleType');
+        if (savedVehicleType) {
+            vehicleTypeElement.textContent = savedVehicleType;
+        }
+    }
 
-    // Назначаем обработчики для редактируемых полей
-    routeNumberElement.addEventListener('click', handleEditableClick);
-    vehicleNumberElement.addEventListener('click', handleEditableClick);
-
-    // Обработчик для выбора типа транспорта
-    const dropdownOptions = document.querySelectorAll('.dropdown-content span');
-    dropdownOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            vehicleTypeElement.textContent = this.getAttribute('data-value');
+    function initializePage() {
+        // Загружаем сохраненные данные
+        loadFromLocalStorage();
+        
+        // Инициализируем таймер
+        initializeTimer();
+        
+        // Назначаем обработчики
+        routeNumberElement.addEventListener('click', handleEditableClick);
+        vehicleNumberElement.addEventListener('click', handleEditableClick);
+        priceElement.addEventListener('click', handleEditableClick);
+        
+        // Обработчик для выбора типа транспорта
+        const dropdownOptions = document.querySelectorAll('.dropdown-content span');
+        dropdownOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                vehicleTypeElement.textContent = this.getAttribute('data-value');
+                localStorage.setItem('vehicleType', this.getAttribute('data-value'));
+                generateQR();
+            });
+        });
+        
+        // Обработчик клика по таймеру
+        timerElement.addEventListener('click', () => {
+            const now = new Date();
+            startTime = now;
+            
+            const currentDateTime = getCurrentDateTimeString(now);
+            dateElement.textContent = currentDateTime;
+            
+            ticketNumber = generateTicketNumber(now);
+            ticketNumberElement.textContent = ticketNumber;
+            
+            updateTimer();
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateTimer, 1000);
+            
             generateQR();
         });
-    });
+        
+        // Обработчик для кнопки скачивания
+        document.querySelector('.btn-download').addEventListener('click', function() {
+            // Здесь можно добавить логику для скачивания билета
+            alert('Функция скачивания билета будет реализована позже');
+        });
+    }
 
-    // Обработчик клика по таймеру - сброс и генерация новых данных
-    timerElement.addEventListener('click', () => {
-        const now = new Date();
-        startTime = now;
-        
-        const currentDateTime = getCurrentDateTimeString(now);
-        dateElement.textContent = currentDateTime;
-        
-        // Генерируем новый номер билета
-        ticketNumber = generateTicketNumber(now);
-        ticketNumberElement.textContent = ticketNumber;
-        
-        // Сбрасываем таймер
-        updateTimer();
-        
-        // Перезапускаем интервал
-        if (timerInterval) {
-            clearInterval(timerInterval);
-        }
-        timerInterval = setInterval(updateTimer, 1000);
-        
-        generateQR();
-    });
+    // Инициализируем страницу при загрузке
+    window.addEventListener('DOMContentLoaded', initializePage);
 </script>
-</body> </html>
+</body>
+</html>
