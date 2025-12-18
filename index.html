@@ -548,24 +548,50 @@
         e.target.removeEventListener('click', handleEditableClick);
     }
 
-    function initializeTimer() {
-        const now = new Date();
-        startTime = now;
+    function loadTimer() {
+        // Пытаемся загрузить сохраненное время старта
+        const savedStartTime = localStorage.getItem('timerStartTime');
         
-        const currentDateTime = getCurrentDateTimeString(now);
-        dateElement.textContent = currentDateTime;
+        if (savedStartTime) {
+            // Используем сохраненное время
+            startTime = new Date(parseInt(savedStartTime, 10));
+            
+            // Обновляем отображение даты и номера билета по сохраненному времени
+            const savedDateTime = getCurrentDateTimeString(startTime);
+            dateElement.textContent = savedDateTime;
+            
+            // Загружаем сохраненный номер билета
+            const savedTicketNumber = localStorage.getItem('ticketNumber');
+            if (savedTicketNumber) {
+                ticketNumber = savedTicketNumber;
+                ticketNumberElement.textContent = savedTicketNumber;
+            } else {
+                // Если номера нет, генерируем новый на основе сохраненного времени
+                ticketNumber = generateTicketNumber(startTime);
+                ticketNumberElement.textContent = ticketNumber;
+                localStorage.setItem('ticketNumber', ticketNumber);
+            }
+        } else {
+            // Если сохраненного времени нет, создаем новое
+            const now = new Date();
+            startTime = now;
+            localStorage.setItem('timerStartTime', now.getTime().toString());
+            
+            const currentDateTime = getCurrentDateTimeString(now);
+            dateElement.textContent = currentDateTime;
+            
+            ticketNumber = generateTicketNumber(now);
+            ticketNumberElement.textContent = ticketNumber;
+            localStorage.setItem('ticketNumber', ticketNumber);
+        }
         
-        ticketNumber = generateTicketNumber(now);
-        ticketNumberElement.textContent = ticketNumber;
-        
+        // Запускаем таймер сразу
         updateTimer();
         
         if (timerInterval) {
             clearInterval(timerInterval);
         }
         timerInterval = setInterval(updateTimer, 1000);
-        
-        generateQR();
     }
 
     function loadFromLocalStorage() {
@@ -595,8 +621,8 @@
         // Загружаем сохраненные данные
         loadFromLocalStorage();
         
-        // Инициализируем таймер
-        initializeTimer();
+        // Загружаем и запускаем таймер
+        loadTimer();
         
         // Назначаем обработчики
         routeNumberElement.addEventListener('click', handleEditableClick);
@@ -615,15 +641,25 @@
         
         // Обработчик клика по таймеру
         timerElement.addEventListener('click', () => {
+            // Обновляем время старта
             const now = new Date();
             startTime = now;
             
+            // Сохраняем новое время в localStorage
+            localStorage.setItem('timerStartTime', now.getTime().toString());
+            
+            // Обновляем отображение даты
             const currentDateTime = getCurrentDateTimeString(now);
             dateElement.textContent = currentDateTime;
             
+            // Генерируем новый номер билета
             ticketNumber = generateTicketNumber(now);
             ticketNumberElement.textContent = ticketNumber;
             
+            // Сохраняем номер билета
+            localStorage.setItem('ticketNumber', ticketNumber);
+            
+            // Сбрасываем и перезапускаем таймер
             updateTimer();
             
             if (timerInterval) {
@@ -631,6 +667,7 @@
             }
             timerInterval = setInterval(updateTimer, 1000);
             
+            // Обновляем QR-код
             generateQR();
         });
         
@@ -639,6 +676,9 @@
             // Здесь можно добавить логику для скачивания билета
             alert('Функция скачивания билета будет реализована позже');
         });
+        
+        // Генерируем QR-код после загрузки всех данных
+        generateQR();
     }
 
     // Инициализируем страницу при загрузке
